@@ -1,0 +1,186 @@
+---
+title: "Hierarchical Clustering"
+author: "Dr. Osita Onyejekwe"
+date: "2023-02-15"
+output: html_document
+---
+
+# What is Hierarchical Clustering?
+
+-   Alternative to K-Means Clustering Algorithm (Has Pros and Cons)
+
+-   Used to group together observations into the same group
+
+    -   It will typically formulate the number of clusters (either top to bottom or bottom to top)
+
+-   Does not require pre-specified number of clusters
+
+-   Can Specify what distance metric to use
+
+## Different types of Hierarchical Clustering
+
+-   **Agglomerative Clustering (AGNES)**: Bottom up approach; Each observations starts as its own cluster and merges with other observations that are most similar. It will continue to do this until all the observations are in this one huge group.
+-   **Divisive Hierarchical Clustering**: Top down approach; All observations are in one group. They start to split the more different (heterogeneous) they are. This keeps on iterating through until each observation is its own cluster.
+
+## Different Forms of 'Distance'
+
+-   Distance effect the shape of the cluster:
+
+    -   Euclidean Distance
+
+    -   Manhattan Distance
+
+    -   Maximum Distance
+
+    -   Etc...
+
+## Different Forms of Linking
+
+-   **Complete Linkage Clustering**: Obtains the distance between **ALL** the observations in cluster 1 and cluster 2 and merges the clusters together if the distances are minimum.
+-   **Average Linkage Clustering**: Computes distances between **ALL** the observations in cluster 1 and cluster 2 and averages the values.
+-   **Centroid Linkage Clustering**: Calculates the centroid within each cluster and uses the distance between each centroid to determine to merge.
+-   Etc...
+
+```{r}
+
+library(factoextra)
+iris 
+
+# Overall goal is to do a hierarhical clustering observatiosn on the 4 features and we will esesentially compare the species to the type of clusters we have generated via the method. 
+
+```
+
+```{r}
+
+iris.labels <- iris$Species
+table(iris.labels)
+
+# Data 
+iris_data <- iris[1:4]  #exlcuding species 
+
+# Scale: (so that our distance algorithm can do what its intended to do and it's not messing around with unbalanced data within our hyper-space or dimensional space)
+
+head(iris)
+head(iris_data)
+
+
+iris_data_std <- scale(iris_data)
+# first 4 columns with standardized values (also gives you the center and the scale)
+```
+
+```{r}
+
+# Distance 
+
+?dist
+
+# The default here is the Euclidean distance method, but you can also use the manahttan, kendall, spearman, canberra, etc..., but for the purpose of this lecture I will be using the Euclidean Distance 
+
+iris.dist <- dist(iris_data_std)
+# We observe the distance (euclidean) metrics within our data. Essentially an algorithm /equation such that you plug in your inputs and you get your outputs. 
+```
+
+*One of the neat things about hierarchical clustering is that unlike k-means clustering where you pre-define the number of clusters, for this method, you do not have to identify this, esp if you're doing the top-down/bottom-up approach*.
+
+```{r}
+
+# Hierarchical Clustering Algorithm 
+
+?hclust 
+# (complete, average, median, centroid..etc) Basically the type of method to utilize when you want to figure out how to merge the clusters with each other.
+
+hc.out_Iris <- hclust(iris.dist, method = "complete")
+hc.out_Iris 
+
+
+# We have 150 observations, it even lables the type of distance we are using, and also the clustering method. 
+# He were also did the agglomerative/ bottom-up approach. 
+
+```
+
+```{r}
+
+# Dendrogram 
+
+plot(hc.out_Iris)
+rect.hclust(hc.out_Iris, k=3, border = 2:5)
+
+```
+
+Essentially what this *dendodiagram*, we observe that each of our observations are being merged as they go up until everything is under one group.
+
+-   The cool thing about the hierarchical clustering method is that we have a really neat tree observation to determine which type/how many types of clusters we might want to utilize.
+
+-   Since we chose *k=3* clusters, it's essentially a line between between counting the number of edges that occur.
+
+-   So observe the main horizontal line and the 3 lines that are being intersected at the very same root level, hence we will have 3 different types of groups that are created here.
+
+-   Now if you want *5 different groups* ( go down one level on the graph, height 3-4ish), we would be drawing a horizontal line around heights 3-4, and with the new intersected areas, for each intersection it would be it's own cluster.
+
+![example](cluster%20diagram.png)
+
+-   Therefore, setting *k=5*, it would draw a line through 5 specific areas and it will essentially group together the different types of clusters that we might generate.
+
+```{r}
+
+plot(hc.out_Iris)
+rect.hclust(hc.out_Iris, k=5, border = 2:6)
+```
+
+Drawbacks to this approach is that if we have a billion observations then using this type of method isn't going to really cut it, then it that case we would probably use a k-means instead of hierarchical clustering.
+
+```{r}
+# reverting back to 3 groups. 
+
+plot(hc.out_Iris)
+rect.hclust(hc.out_Iris, k=3, border = 2:5)
+
+```
+
+```{r}
+
+# Clusters 
+
+?cutree
+
+# This is a really cool method where we can identify visually where to do the cut and identify which observations are related to which type of group. This will actually cut your group into that specific cluster of data. 
+
+iris.clusters <- cutree(hc.out_Iris, k=3)
+
+length(iris.clusters)
+
+# Each of the 150 observations have it's associated cluster number. 
+```
+
+```{r}
+
+# Visualize (Vis)
+
+# But first we want to have our iris data standarized with it's unique rowname identifier. 
+
+rownames(iris_data_std) <- paste(iris$Species, 1:dim(iris)[1], sep= "_")
+iris_data_std
+
+
+```
+
+Now that we have the visualizations of our cluster components created, we will be using a specific function from the `factoextra` library, whereby we will visualize using the `fviz_ccluster.`
+
+```{r}
+
+# Hierarhical Clustering. 
+
+fviz_cluster(list(data=iris_data_std, cluster = iris.clusters))
+
+
+```
+
+We essentially have all our unlabeled data that has been pushed in. Since we already know what observation has already been labeled, we can observe which observations have beeen correctly associated with each other.
+
+```{r}
+table(iris.clusters, iris$Species)
+
+# Yikes...(group 3)
+```
+
+Also note that the `dim1` and `dim2` features in the plot are a combination of all the features that explain the most variance. (PCA (principle component analysis) is used in the back-end, i.e. 2 plotted dimensions)

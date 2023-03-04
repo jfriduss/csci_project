@@ -1,0 +1,3 @@
+I reorganized the directories, so now everytime I try to use an old notebook to call a .csv, it will say "file not found", and I need to copy and paste the file from module 1, into the folder with the jupyter notebook that I am using!
+
+Also, instead of having a "misc figuring things out" notebook for figuring out EVERYTHING, try and keep, for each subset of the project, have two notebooks: a "thing X" notebook and a "scratch figuring thing X out" notebook. I think this organization method will help me come back and find previous work easier.

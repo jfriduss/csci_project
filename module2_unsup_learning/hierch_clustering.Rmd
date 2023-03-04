@@ -1,0 +1,52 @@
+---
+title: "hierarch_clustering_project"
+output: html_document
+date: "2023-03-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+
+
+
+```
+
+
+```{r}
+
+inital_pubchem_data <- read.csv("C:\\Users\\jonat_od7omk3\\Desktop\\CSCI_5622\\project\\pub_chem_1000_compounds.csv")
+
+
+#get only the columns with number of carbons, hydrogens, oxygens and nitrogens
+num_common_el <- inital_pubchem_data[7:10]
+
+head(num_common_el)
+
+```
+```{r}
+
+num_common_el_data_std <- scale(num_common_el) #if you don't do the previous two steps before using hclust, the data isn't the correct data type (it needs to be a "dissimilarity matrix")
+num_common_el_data.dist <- dist(num_common_el_data_std)
+hc.out_num_common_el_data <- hclust(num_common_el_data.dist, method = "complete")
+
+hc.out_num_common_el_data
+```
+
+
+```{r}
+plot(hc.out_num_common_el_data)
+rect.hclust(hc.out_num_common_el_data, k=3, border = 2:5)
+```
+

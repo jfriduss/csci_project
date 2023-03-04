@@ -1,0 +1,7 @@
+"0","test <- ""hello"""
+"0",""
+"0","inital_pubchem_data <- read.csv(""C:\\Users\\jonat_od7omk3\\Desktop\\CSCI_5622\\project\\pub_chem_1000_compounds.csv"")"
+"0",""
+"0","num_common_el <- inital_pubchem_data[7:10]"
+"0",""
+"0","head(num_common_el)"
